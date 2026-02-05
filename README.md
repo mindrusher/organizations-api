@@ -52,8 +52,6 @@ docker-compose up --build
 
 http://localhost:8000/docs
 
-Альтернативная документация (ReDoc): http://localhost:8000/redoc
-
 ### 3. Все запросы требуют API-ключа в заголовке
 
 X-API-Key: API_SECRET_KEY
@@ -76,3 +74,4 @@ docker-compose up --build
 - 4 организации
 
 - 6 номеров телефонов (у некоторых организаций несколько номеров)
+
