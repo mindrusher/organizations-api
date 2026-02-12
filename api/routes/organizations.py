@@ -1,4 +1,4 @@
-"""API routes for organizations."""
+"""API поинты для организаций"""
 
 from typing import List
 
@@ -20,6 +20,7 @@ def get_org_by_id(
     org_id: int,
     service: OrganizationService = Depends(get_organization_service),
 ) -> OrganizationOut:
+    """Возвращает организацию по её ID"""
     org = service.get_by_id(org_id)
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
@@ -33,6 +34,13 @@ def get_org_in_radius(
     radius: float,
     service: OrganizationService = Depends(get_organization_service),
 ) -> List[OrganizationOut]:
+    """Возвращает список организаций в радиусе от точки, где:
+    lat и lon - широта и долгота центра окружности,
+    radius - соответственно радиус окружности с центром в точке
+    указанной выше.
+    Функция не использует точное геопозиционирование, за основу
+    взята формула определния принадлежности точки к окружности
+    """
     return service.get_in_radius(lat, lon, radius)
 
 
@@ -41,6 +49,7 @@ def get_org_by_building_address(
     building_address: str,
     service: OrganizationService = Depends(get_organization_service),
 ) -> OrganizationOut:
+    """Возвращает организацию по адресу здания"""
     org = service.get_by_building_address(building_address)
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
@@ -52,6 +61,7 @@ def get_org_by_name(
     org_name: str,
     service: OrganizationService = Depends(get_organization_service),
 ) -> List[OrganizationOut]:
+    """Возвращает список организаций по имени (также частичное совпадение)"""
     return service.get_by_name(org_name)
 
 
@@ -60,5 +70,7 @@ def get_org_by_activity(
     activity_name: str,
     service: OrganizationService = Depends(get_organization_service),
 ) -> List[OrganizationOut]:
+    """Возвращает список организаций по роду деятельности (имени|Activities.name)"""
     return service.get_by_activity(activity_name)
+
 
