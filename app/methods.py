@@ -1,79 +1,41 @@
-# -*- coding: utf-8 -*-
-# Бизнес-логика и запросы к базе данных
+"""Т.к. пересобрал решение тз под прод-версию, фасад устаревший, бизнес логика в services
+"""
 
 from typing import List, Optional
+
 from sqlalchemy.orm import Session
-from sqlalchemy import select, func
-from models import Organization, Building, Activity
+
+from models import Organization
+from repositories.organizations import OrganizationRepository
+from services.organizations import OrganizationService
 
 
-def organizations_by_building_address(db: Session, building_address: str) -> Optional[Organization]:
-    """Возвращает организацию по адресу здания или None"""
-    return db.scalars(
-        select(Organization).join(Building).where(Building.address == building_address)
-    ).first()
+def _make_service(db: Session) -> OrganizationService:
+    repo = OrganizationRepository(db)
+    return OrganizationService(repo)
+
+
+def organizations_by_building_address(
+    db: Session, building_address: str
+) -> Optional[Organization]:
+    return _make_service(db).get_by_building_address(building_address)
 
 
 def organization_by_id(db: Session, org_id: int) -> Optional[Organization]:
-    """Возвращает организацию по её ID или None"""
-    return db.get(Organization, org_id)
+    return _make_service(db).get_by_id(org_id)
 
 
 def organization_by_name(db: Session, name: str) -> List[Organization]:
-    """Возвращает список организаций по имени (также частичное совпадение)"""
-    return db.scalars(
-        select(Organization).where(Organization.name.ilike(f"%{name}%"))
-    ).all()
+    return _make_service(db).get_by_name(name)
 
 
 def organizations_in_radius(
-        db: Session, lat: float, lon: float, radius: float
-    ) -> List[Organization]:
-    """Возвращает список организаций в радиусе от точки, где:
-    lat и lon - широта и долгота центра окружности,
-    radius - соответственно радиус окружности с центром в точке
-    указанной выше.
-    Функция не использует точное геопозиционирование, за основу
-    взята формула определния принадлежности точки к окружности
-    """
-    
-    buildings_subq = (
-        select(Building.id)
-        .where(
-            func.pow(Building.latitude - lat, 2) +
-            func.pow(Building.longitude - lon, 2)
-            <= func.pow(radius, 2)
-        )
-    )
-
-    return db.scalars(
-        select(Organization)
-        .join(Building)
-        .where(Building.id.in_(buildings_subq))
-    ).all()
+    db: Session, lat: float, lon: float, radius: float
+) -> List[Organization]:
+    return _make_service(db).get_in_radius(lat, lon, radius)
 
 
 def get_activity_tree_ids(db: Session, activity_name: str) -> list[int]:
-    """Возвращает список организаций по роду деятельности (имени|Activities.name)"""
-    root = db.scalar(
-        select(Activity).where(Activity.name == activity_name)
-    )
+    repo = OrganizationRepository(db)
+    return repo.get_activity_tree_ids(activity_name)
 
-    if not root:
-        return []
-
-    result = [root.id]
-    queue = [root.id]
-
-    while queue:
-        current = queue.pop(0)
-
-        children = db.scalars(
-            select(Activity).where(Activity.parent_id == current)
-        ).all()
-
-        for child in children:
-            result.append(child.id)
-            queue.append(child.id)
-
-    return result
