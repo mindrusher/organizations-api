@@ -1,4 +1,4 @@
-"""FastAPI dependencies (DB sessions, auth, services)."""
+"""FastAPI зависимости (DB sessions, auth, services)."""
 
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy.orm import Session
@@ -32,4 +32,5 @@ def get_organization_service(db: Session = Depends(get_db)) -> OrganizationServi
     """Factory for ``OrganizationService`` with injected repository."""
     repo = OrganizationRepository(db)
     return OrganizationService(repo)
+
 
