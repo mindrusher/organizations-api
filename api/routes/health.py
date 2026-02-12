@@ -1,4 +1,4 @@
-"""Healthcheck endpoints for monitoring and orchestration."""
+"""Проверка работоспособности"""
 
 from fastapi import APIRouter
 from sqlalchemy import text
@@ -12,10 +12,10 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health", summary="Basic healthcheck")
 def healthcheck() -> dict:
-    """Lightweight healthcheck endpoint.
+    """Упрощенная точка проверки работоспособности.
 
-    - Verifies that the application is up.
-    - Performs a minimal database check.
+    - Проверяет работоспособность приложения.
+    - Выполняет минимальную проверку базы данных..
     """
     db_status = "unknown"
     try:
@@ -36,4 +36,5 @@ def healthcheck() -> dict:
             "database": db_status,
         },
     }
+
 
