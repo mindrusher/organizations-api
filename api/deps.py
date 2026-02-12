@@ -10,7 +10,7 @@ from services.organizations import OrganizationService
 
 
 def get_db() -> Session:
-    """Provide a database session per-request."""
+    """Предоставляет сеанс бд для каждого запроса."""
     db = SessionLocal()
     try:
         yield db
@@ -19,7 +19,7 @@ def get_db() -> Session:
 
 
 def api_key_auth(x_api_key: str = Header(...)) -> None:
-    """Simple API-key based authentication.
+    """API-key аутентификация.
 
     The key is provided via ``X-API-Key`` header and compared
     against the configured value.
@@ -29,8 +29,9 @@ def api_key_auth(x_api_key: str = Header(...)) -> None:
 
 
 def get_organization_service(db: Session = Depends(get_db)) -> OrganizationService:
-    """Factory for ``OrganizationService`` with injected repository."""
+    """Фабричный подход для OrganizationService с шаблоном репозитория."""
     repo = OrganizationRepository(db)
     return OrganizationService(repo)
+
 
 
