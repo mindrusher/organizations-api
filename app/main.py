@@ -1,23 +1,29 @@
-# -*- coding: utf-8 -*-
 # Основной файл FastAPI приложения, точка входа
 
 from fastapi import FastAPI
-from database import engine, SessionLocal
+
+from api.routes.health import router as health_router
+from api.routes.organizations import router as org_router
+from core.config import settings
+from db.session import SessionLocal, engine
 from models import Base
-from routers import router as org_router
 from seed import seed_data
 
-app = FastAPI(title="Organizations API")
+app = FastAPI(title="Organizations API", debug=settings.debug)
 
-Base.metadata.create_all(bind=engine)
 
 @app.on_event("startup")
-def startup_event():
-    """Загружаем тестовые данные при сборке контейнера"""
+def on_startup() -> None:
+    """Запуск приложения. Загрузка тестовых данных"""
+    Base.metadata.create_all(bind=engine)
+
     db = SessionLocal()
     try:
         seed_data(db)
     finally:
         db.close()
 
+
+app.include_router(health_router)
 app.include_router(org_router)
+
