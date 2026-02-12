@@ -19,11 +19,7 @@ def get_db() -> Session:
 
 
 def api_key_auth(x_api_key: str = Header(...)) -> None:
-    """API-key аутентификация.
-
-    The key is provided via ``X-API-Key`` header and compared
-    against the configured value.
-    """
+    """API-key аутентификация."""
     if x_api_key != settings.api_key:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
@@ -32,6 +28,7 @@ def get_organization_service(db: Session = Depends(get_db)) -> OrganizationServi
     """Фабричный подход для OrganizationService с шаблоном репозитория."""
     repo = OrganizationRepository(db)
     return OrganizationService(repo)
+
 
 
 
