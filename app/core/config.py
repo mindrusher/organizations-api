@@ -11,9 +11,9 @@ class Settings(BaseModel):
     In production, override them via env vars (e.g. Docker / Kubernetes).
     """
 
-    # Database
+    # Database (async driver by default)
     database_url: str = os.getenv(
-        "DATABASE_URL", "mysql+pymysql://root:root@db:3306/orgs_db"
+        "DATABASE_URL", "mysql+aiomysql://root:root@db:3306/orgs_db"
     )
 
     # Security

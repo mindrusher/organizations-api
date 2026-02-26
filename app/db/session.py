@@ -1,7 +1,11 @@
-"""SQLAlchemy engine and session management."""
+"""SQLAlchemy async engine and session management."""
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import DeclarativeBase
 
 from core.config import settings
 
@@ -13,8 +17,11 @@ class Base(DeclarativeBase):
 
 
 # echo SQL only in debug mode to avoid noisy logs in production
-engine = create_engine(settings.database_url, echo=settings.debug)
+engine = create_async_engine(settings.database_url, echo=settings.debug)
 
-# In a bigger app you may want scoped_session here
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
